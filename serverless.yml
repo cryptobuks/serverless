@@ -1,0 +1,20 @@
+type: rest-api-app
+# ... snip
+
+components:
+  productsDb:
+    type: aws-dynamodb
+    inputs:
+      region: us-east-1
+      tables:
+        - name: Main
+          hashKey: id
+          indexes:
+            - name: MainIndex
+              type: global
+              hashKey: id
+          schema:
+            id: string
+            name: string
+          options:
+            timestamps: true
