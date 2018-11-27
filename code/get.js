@@ -1,35 +1,36 @@
-'use strict';
+'use strict'
 
-const AWS = require('aws-sdk'); // eslint-disable-line import/no-extraneous-dependencies
+const AWS = require('aws-sdk') // eslint-disable-line import/no-extraneous-dependencies
 
-const dynamoDb = new AWS.DynamoDB.DocumentClient();
+const dynamoDb = new AWS.DynamoDB.DocumentClient()
 
 module.exports.get = (event, context, callback) => {
   const params = {
     TableName: process.env.DYNAMODB_TABLE,
     Key: {
-      id: event.pathParameters.id,
-    },
-  };
+      id: event.pathParameters.id
+    }
+  }
 
   // fetch todo from the database
   dynamoDb.get(params, (error, result) => {
     // handle potential errors
     if (error) {
-      console.error(error);
+      console.error(error)
       callback(null, {
         statusCode: error.statusCode || 501,
         headers: { 'Content-Type': 'text/plain' },
-        body: 'Couldn\'t fetch the todo item.',
-      });
-      return;
+        body: 'Couldn\'t fetch the todo item.'
+      })
+      return
     }
-
+    // giver client only what the asked for, hide the rest
+    const simpleItem = { 'message': result.Item.message }
     // create a response
     const response = {
       statusCode: 200,
-      body: JSON.stringify(result.Item),
-    };
-    callback(null, response);
-  });
-};
+      body: JSON.stringify(simpleItem)
+    }
+    callback(null, response)
+  })
+}
