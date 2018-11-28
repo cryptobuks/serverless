@@ -12,12 +12,14 @@ provider:
     - Effect: Allow
       Action:
         - dynamodb:Query
-        - dynamodb:Scan
         - dynamodb:GetItem
         - dynamodb:PutItem
         - dynamodb:DeleteItem
-        - dynamodb:UpdateItem
       Resource: "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.DYNAMODB_TABLE}"
+    - Effect: Allow
+      Action:
+        - dynamodb:Query
+      Resource: "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.DYNAMODB_TABLE}/index/*"
 
 functions:
   create:
@@ -49,11 +51,13 @@ resources:
         AttributeDefinitions:
          - AttributeName: id
            AttributeType: S
-         - AttributeName: timestamp
+         - AttributeName: timePutIn
            AttributeType: N
         KeySchema:
           - AttributeName: id
             KeyType: HASH
+          - AttributeName: timePutIn
+            KeyType: RANGE
         GlobalSecondaryIndexes:
          - IndexName: mainGSI
            Projection:
@@ -62,7 +66,7 @@ resources:
             ReadCapacityUnits: '1'
             WriteCapacityUnits: '1'
            KeySchema:
-           - AttributeName: timestamp
+           - AttributeName: timePutIn
              KeyType: HASH
         ProvisionedThroughput:
           ReadCapacityUnits: 1

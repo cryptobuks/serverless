@@ -2,17 +2,14 @@
 
 const AWS = require('aws-sdk')// eslint-disable-line import/no-extraneous-dependencies
 const dynamoDb = new AWS.DynamoDB.DocumentClient()
-// const timestamp = new Date().getTime()
+const timestamp = new Date().getTime()
 const params = {
   TableName: process.env.DYNAMODB_TABLE,
-  KeyConditionExpression: ':hkey > :time',
-  ExpressionAttributeNames: {
-    ':hkey': 'timestamp'
-  },
+  KeyConditionExpression: 'timePutIn < :timeThing ',
+  // IndexName: 'mainGSI',
   ExpressionAttributeValues: {
-    ':time': 1
+    ':timeThing': timestamp - 300000
   }
-
 }
 
 module.exports.run = (event, context, callback) => {
@@ -21,6 +18,7 @@ module.exports.run = (event, context, callback) => {
     // handle potential errors
     if (error) {
       console.error(error)
+      return
     }
     // create a response
     console.log(result)

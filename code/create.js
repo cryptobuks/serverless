@@ -22,7 +22,7 @@ module.exports.create = (event, context, callback) => {
     Item: {
       id: data.Id,
       message: data.text,
-      timestamp: timestamp
+      timePutIn: timestamp
     }
   }
 
