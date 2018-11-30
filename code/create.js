@@ -5,7 +5,7 @@ const AWS = require('aws-sdk') // eslint-disable-line import/no-extraneous-depen
 const dynamoDb = new AWS.DynamoDB.DocumentClient()
 
 module.exports.create = (event, context, callback) => {
-  const timestamp = new Date().getTime()
+  const timething = Date.now()
   const data = JSON.parse(event.body)
   if (typeof data.text !== 'string') {
     console.error('Validation Failed')
@@ -22,7 +22,7 @@ module.exports.create = (event, context, callback) => {
     Item: {
       id: data.Id,
       message: data.text,
-      timePutIn: timestamp
+      timePutIn: timething
     }
   }
 
