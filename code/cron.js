@@ -10,11 +10,6 @@ module.exports.run = (event, context, callback) => {
   const params = {
     TableName: process.env.DYNAMODB_TABLE,
     FilterExpression: '#timePut < :timeThing',
-    // KeyConditionExpression: 'timePutIn < :timeThing',
-    // IndexName: 'mainGSI',
-    // ExpressionAttributeValues: {
-    //   ':timeThing': timestampI
-    // }
     ExpressionAttributeNames: {
       '#timePut': 'timePutIn'
     },
@@ -22,41 +17,46 @@ module.exports.run = (event, context, callback) => {
       ':timeThing': timestampI
     }
   }
+  var deleteItem = []
   dynamoDb.scan(params, (error, result) => {
     // handle potential errors
     if (error) {
       console.error(error)
       return
     }
+    if (result.Count === 0) {
+      console.error('empty')
+      return
+    }
     // create a response
-    // deleteItem = result.Items
-    // results = result.Items
-    console.log(timestampI)
-    console.log(result)
-  })
-  let itemsArray = []
-  let delIds = []
-  let item1 = {
-    DeleteRequest: {
-      Key: {
-        id: 'second'
+    for (let i = 0; i < result.Items.length; i++) {
+      deleteItem.push(result.Items[i].id)
+    }
+    let itemsArray = []
+    for (let i = 0; i < deleteItem.length; i++) {
+      let item1 = {
+        DeleteRequest: {
+          Key: {
+            id: deleteItem[i]
+          }
+        }
+      }
+      // console.log(item1)
+      itemsArray.push(item1)
+    }
+    // console.log(itemsArray)
+    const params1 = {
+      RequestItems: {
+        'serverless-rest-api-with-dynamodb-dev': itemsArray
       }
     }
-  }
 
-  itemsArray.push(item1)
-
-  const params1 = {
-    RequestItems: {
-      'serverless-rest-api-with-dynamodb-dev': itemsArray
-    }
-  }
-
-  dynamoDb.batchWrite(params1, function (err, data) {
-    if (err) {
-      console.log('Error', err)
-    } else {
-      console.log('Success', data)
-    }
+    dynamoDb.batchWrite(params1, function (err, data) {
+      if (err) {
+        console.log('Error', err)
+      } else {
+        console.log('Success', data)
+      }
+    })
   })
 }
