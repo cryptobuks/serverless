@@ -36,8 +36,8 @@ functions:
     handler: code/get.get
     events:
       - http:
-          path: code/{id}
-          method: get
+          path: code/getID
+          method: post
           cors: true
   cron:
     handler: code/cron.run

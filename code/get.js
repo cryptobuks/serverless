@@ -5,10 +5,11 @@ const AWS = require('aws-sdk') // eslint-disable-line import/no-extraneous-depen
 const dynamoDb = new AWS.DynamoDB.DocumentClient()
 
 module.exports.get = (event, context, callback) => {
+  const data = JSON.parse(event.body)
   const params = {
     TableName: process.env.DYNAMODB_TABLE,
     Key: {
-      id: event.pathParameters.id
+      id: data.Id
     }
   }
 
@@ -18,7 +19,15 @@ module.exports.get = (event, context, callback) => {
     if (error) {
       console.error(error)
       callback(null, {
-        statusCode: error.statusCode || 501,
+        statusCode: 501,
+        headers: { 'Content-Type': 'text/plain' },
+        body: 'Couldn\'t fetch the todo item.'
+      })
+      return
+    }
+    if (Object.keys(result).length === 0) {
+      callback(null, {
+        statusCode: 501,
         headers: { 'Content-Type': 'text/plain' },
         body: 'Couldn\'t fetch the todo item.'
       })
